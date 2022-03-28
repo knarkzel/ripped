@@ -1,14 +1,8 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use anyhow::{Context, Error};
-use eframe::{
-    egui::{style::Spacing, *},
-    epi, NativeOptions,
-};
-use fehler::throws;
-use glob::glob;
+use eframe::{egui::*, epi, NativeOptions};
+use ripped::*;
 use rusqlite::Connection;
-use std::path::PathBuf;
 
 enum Theme {
     Dark,
@@ -19,9 +13,10 @@ enum Theme {
 #[cfg_attr(feature = "persistence", serde(default))]
 struct State {
     connection: Connection,
-    folder: String,
     theme: Theme,
+    folder: String,
     include_subfolders: bool,
+    replays: Vec<Replay>,
 }
 
 impl State {
@@ -32,16 +27,22 @@ impl State {
             connection: Connection::open_in_memory()?,
             theme: Theme::Light,
             include_subfolders: false,
+            replays: Vec::new(),
         }
     }
 
     #[throws]
-    fn replays(&self) -> Vec<PathBuf> {
+    fn files(&self) -> Vec<PathBuf> {
         let path = match self.include_subfolders {
             true => format!("{}/**/*.slp", self.folder),
             false => format!("{}/*.slp", self.folder),
         };
         glob::glob(&path)?.flatten().collect()
+    }
+
+    #[throws]
+    fn load_replays(&mut self) {
+        self.replays = self.files()?.iter().flat_map(Replay::new).collect();
     }
 
     fn toggle_theme(&mut self) {
@@ -80,6 +81,11 @@ impl epi::App for State {
 
         // Theme
         self.load_theme(ctx);
+
+        // Replays
+        if self.load_replays().is_err() {
+            println!("Error occurred while parsing replays");
+        }
     }
 
     #[cfg(feature = "persistence")]
@@ -108,6 +114,16 @@ impl epi::App for State {
 
             // Subfolders
             ui.checkbox(&mut self.include_subfolders, "Include subfolders");
+
+            // Replays
+            ui.separator();
+            ScrollArea::vertical()
+                .auto_shrink([false; 2])
+                .show(ui, |ui| {
+                    for replay in &self.replays {
+                        ui.label("arst");
+                    }
+                });
         });
     }
 }
