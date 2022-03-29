@@ -14,4 +14,4 @@ pub use replay::Replay;
 pub use std::path::PathBuf;
 
 // Parallell
-use rayon::prelude::*;
+pub use rayon::prelude::*;
