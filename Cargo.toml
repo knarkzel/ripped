@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 rfd = "0.8"
 glob = "0.3"
+rayon = "1.5"
 anyhow = "1.0"
 fehler = "1.0"
 eframe = "0.16"

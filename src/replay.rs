@@ -42,3 +42,14 @@ impl Replay {
         Self { stage, players }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test::Bencher;
+
+    #[bench]
+    fn bench_add_two(b: &mut Bencher) {
+        b.iter(|| 2 + 2);
+    }
+}

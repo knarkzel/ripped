@@ -1,3 +1,4 @@
+#![feature(test)]
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use eframe::{egui::*, epi, NativeOptions};
@@ -121,7 +122,13 @@ impl epi::App for State {
                 .auto_shrink([false; 2])
                 .show(ui, |ui| {
                     for replay in &self.replays {
-                        ui.label("arst");
+                        ui.horizontal(|ui| {
+                            for player in &replay.players {
+                                if let Some(name_tag) = &player.name_tag {
+                                    ui.label(name_tag);
+                                }
+                            }
+                        });
                     }
                 });
         });
