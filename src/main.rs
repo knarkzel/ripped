@@ -43,7 +43,7 @@ impl State {
 
     #[throws]
     fn load_replays(&mut self) {
-        self.replays = self.files()?.iter().flat_map(Replay::new).collect();
+        self.replays = self.files()?.par_iter().flat_map(Replay::new).collect();
     }
 
     fn toggle_theme(&mut self) {

@@ -49,7 +49,16 @@ mod tests {
     use test::Bencher;
 
     #[bench]
-    fn bench_add_two(b: &mut Bencher) {
-        b.iter(|| 2 + 2);
+    #[throws]
+    fn bench_replays_seq(b: &mut Bencher) {
+        let files: Vec<_> = glob::glob("/home/odd/.slippi/*.slp")?.flatten().collect();
+        b.iter(|| files.iter().map(metadata).collect::<Vec<_>>());
+    }
+
+    #[bench]
+    #[throws]
+    fn bench_replays_par(b: &mut Bencher) {
+        let files: Vec<_> = glob::glob("/home/odd/.slippi/*.slp")?.flatten().collect();
+        b.iter(|| files.par_iter().map(metadata).collect::<Vec<_>>());
     }
 }
